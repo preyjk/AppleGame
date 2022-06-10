@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+    <link rel="stylesheet" href="../css/god.css" />
+    <link rel="stylesheet" href="../css/end.css" />
+  </head>
+  <body>
+    <div id="app" class="content">
+      <!-- 背景图 -->
+      <img src="../assets/beijing.png" class="main_bg" />
+      <div class="score_panel">
+        <h1 class="score">{{score}}分</h1>
+        <img src="../assets/tanchuang.png" alt="" class="score_bg" />
+        <h1 class="header">{{evl}}</h1>
+        <img src="../assets/tc_text_bg.png" alt="" class="score_bg2" />
+        <h2 class="correct">答对{{correctList.length}}题</h2>
+        <ul class="correct_list">
+          <li class="apple" v-for="item in correctList">
+            <img src="../assets/apple.png" alt="" />
+            <span>{{stuff[Number(item)]}}</span>
+          </li>
+        </ul>
+        <h2 class="incorrect">答错{{inCorrectList.length}}题</h2>
+        <ul class="incorrect_list">
+          <li class="apple" v-for="item in inCorrectList">
+            <img src="../assets/apple.png" alt="" />
+            <span>{{stuff[Number(item)]}}</span>
+          </li>
+        </ul>
+        <div class="btn_collect">
+          <img
+            src="../assets/confirm.png"
+            alt=""
+            class="confirm"
+            @click="goPage1()"
+          />
+          <img
+            src="../assets/restart.png"
+            alt=""
+            class="restart"
+            @click="goPage2()"
+          />
+        </div>
+      </div>
+    </div>
+    <script src="../js/jquery-1.11.1.min.js"></script>
+    <script src="../js/changeSize.js"></script>
+    <script src="../js/vue.js"></script>
+    <script>
+      new Vue({
+        el: "#app",
+        data: {
+          score: Number,
+          stuff: [
+            "水溶性成分提取",
+            "遇热易破坏成分提取",
+            "遇热不易破坏成分提取",
+            "挥发性成分提取",
+            "脂溶性成分提取",
+            "非挥发性成分提取",
+            "铁制品提取",
+            "不锈钢制品提取",
+            "陶瓷品提取",
+          ],
+          correctList: [],
+          inCorrectList: [],
+        },
+        computed: {
+          evl() {
+            if (this.score == 100) {
+              return "你真是太棒了!";
+            } else if (this.score < 100 && this.score >= 60) {
+              return "很不错!";
+            } else if (this.score < 60) {
+              return "马马乎乎~";
+            }
+          },
+        },
+        created() {
+          let res = location.search.split("?");
+          console.log(res);
+          this.score = res[1].replace("score=", "");
+          this.correctList = res[2].replace("correctList=", "").split(",");
+          if (this.correctList[0] == "") {
+            this.correctList = [];
+          }
+          this.inCorrectList = res[3].replace("inCorrectList=", "").split(",");
+          if (this.inCorrectList[0] == "") {
+            this.inCorrectList = [];
+          }
+          console.log(this.correctList);
+          console.log(this.inCorrectList);
+        },
+        methods: {
+          goPage1() {
+            window.location.href = "../index.html";
+          },
+          goPage2() {
+            window.location.href = "./game.html";
+          },
+        },
+      });
+    </script>
+  </body>
+</html>

@@ -1,0 +1,532 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+    <link rel="stylesheet" href="./css/god.css" />
+    <link rel="stylesheet" href="./css/index.css" />
+    <link rel="stylesheet" href="./css/game.css" />
+    <link rel="stylesheet" href="./css/end.css" />
+  </head>
+  <body>
+    <div id="app" class="content">
+      <!-- 背景图 -->
+      <img :src="bgImg" class="main_bg" />
+
+      <img src="./assets/font.png" alt="" class="theme" v-show="gameIndex" />
+      <!-- 开始按钮 -->
+      <div class="start" v-show="gameIndex" @click="goRulePage()">
+        <img :src="bg" alt="" class="start_btn" />
+        <img
+          src="./assets/begin.png"
+          alt=""
+          class="btn_font"
+          @mousemove="cgbg"
+          @mouseout="cgbg2"
+        />
+      </div>
+      <!-- 规则界面 -->
+      <div v-show="rulePage" class="rule_wrap">
+        <img src="./assets/rule_bg.png" alt="" class="rule_bg" />
+        <h1 class="rule_h">游戏规则</h1>
+        <p class="rule_p">
+          &nbsp;&nbsp; &nbsp;&nbsp; &nbsp;&nbsp; 本场游戏时间共50秒，
+          满分100分。请选择正确答案，选对+20分，选错-20分,
+          篮子一共可以盛下5个苹果。
+        </p>
+        <button></button>
+      </div>
+      <!-- 开始倒计时 -->
+      <p class="timeReadingRule" v-show="gameProcess">{{readyTime}}</p>
+      <!-- 下落苹果 -->
+      <div class="right_wrap" v-show="gameProcess">
+        <ul>
+          <li class="drop_apple" v-show="isShow[0]" @click="correct(0, 0)">
+            <img :src="img[0]" alt="" />
+            <span>{{stuff[0]}}</span>
+          </li>
+          <li class="drop_apple" v-show="isShow[1]" @click="incorrect(1, 1)">
+            <img :src="img[1]" alt="" />
+            <span>{{stuff[1]}}</span>
+          </li>
+          <li class="drop_apple" v-show="isShow[2]" @click="correct(2,2)">
+            <img :src="img[2]" alt="" />
+            <span>{{stuff[2]}}</span>
+          </li>
+          <li class="drop_apple" v-show="isShow[3]" @click="correct(3,3)">
+            <img :src="img[3]" alt="" />
+            <span>{{stuff[3]}}</span>
+          </li>
+          <li class="drop_apple" v-show="isShow[4]" @click="incorrect(4,4)">
+            <img :src="img[4]" alt="" />
+            <span>{{stuff[4]}}</span>
+          </li>
+          <li class="drop_apple" v-show="isShow[5]" @click="incorrect(5,5)">
+            <img :src="img[5]" alt="" />
+            <span>{{stuff[5]}}</span>
+          </li>
+          <li class="drop_apple" v-show="isShow[6]" @click="incorrect(6,6)">
+            <img :src="img[6]" alt="" />
+            <span>{{stuff[6]}}</span>
+          </li>
+          <li class="drop_apple" v-show="isShow[7]" @click="correct(7, 7)">
+            <img :src="img[7]" alt="" />
+            <span>{{stuff[7]}}</span>
+          </li>
+          <li class="drop_apple" v-show="isShow[8]" @click="correct(8, 8)">
+            <img :src="img[8]" alt="" />
+            <span>{{stuff[8]}}</span>
+          </li>
+        </ul>
+      </div>
+
+      <!-- 接苹果结果 -->
+      <div class="left_wrap" v-show="gameProcess">
+        <div class="blood">
+          <img src="./assets/jindu.png" alt="" class="jindu" />
+          <span>{{score}}/100</span>
+        </div>
+        <div class="time_wrap">
+          <img src="./assets/cycle.png" alt="" class="time_cycle" />
+          <span>{{time}}s</span>
+        </div>
+        <div class="complete_wrap">
+          <img src="./assets/panel.png" alt="" class="panel" />
+          <div class="panel_content">
+            <h2 class="header1">游戏规则</h2>
+            <p class="description">
+              &nbsp;&nbsp; &nbsp;&nbsp; &nbsp;&nbsp; 本场游戏时间共50秒，&nbsp;
+              满分100分。请选择正确答案，选对+20分，选错-20分,
+              篮子一共可以盛下5个苹果。
+            </p>
+            <h2 class="header2">完成情况</h2>
+            <li class="top_apple" v-show="appleBox[4]">
+              <img src="./assets/apple.png" alt="" />
+              <span>{{appleName[4]}}</span>
+            </li>
+            <ul class="apple_list">
+              <li v-show="appleBox[0]">
+                <img src="./assets/apple.png" alt="" />
+                <span>{{appleName[0]}}</span>
+              </li>
+              <li v-show="appleBox[1]">
+                <img src="./assets/apple.png" alt="" />
+                <span>{{appleName[1]}}</span>
+              </li>
+              <li v-show="appleBox[2]">
+                <img src="./assets/apple.png" alt="" />
+                <span>{{appleName[2]}}</span>
+              </li>
+              <li v-show="appleBox[3]">
+                <img src="./assets/apple.png" alt="" />
+                <span>{{appleName[3]}}</span>
+              </li>
+            </ul>
+            <img src="./assets/kuang.png" alt="" class="kuang" />
+            <img
+              src="./assets/complete.png"
+              alt=""
+              class="complete_btn"
+              @click="end"
+            />
+          </div>
+        </div>
+      </div>
+
+      <!--结束弹窗-->
+      <div class="score_panel" v-show="gameResult">
+        <h1 class="score">{{score}}分</h1>
+        <img src="./assets/tanchuang.png" alt="" class="score_bg" />
+        <h1 class="header">{{evl}}</h1>
+        <img src="./assets/tc_text_bg.png" alt="" class="score_bg2" />
+        <h2 class="correct">答对{{correctList.length}}题</h2>
+        <ul class="correct_list">
+          <li class="apple" v-for="item in correctList">
+            <img src="./assets/apple.png" alt="" />
+            <span>{{stuff[Number(item)]}}</span>
+          </li>
+        </ul>
+        <h2 class="incorrect">答错{{inCorrectList.length}}题</h2>
+        <ul class="incorrect_list">
+          <li class="apple" v-for="item in inCorrectList">
+            <img src="./assets/apple.png" alt="" />
+            <span>{{stuff[Number(item)]}}</span>
+          </li>
+        </ul>
+        <div class="btn_collect">
+          <!-- 确定 -->
+          <img
+            src="./assets/confirm.png"
+            alt=""
+            class="confirm"
+            @click="reload"
+          />
+          <!-- 重新开始 -->
+          <img
+            src="./assets/restart.png"
+            alt=""
+            class="restart"
+            @click="init()"
+          />
+        </div>
+      </div>
+      <!--      <img class="laba" :src="laba" alt="" @click="playBg" />-->
+    </div>
+    <script src="./js/vue.js"></script>
+    <script src="./js/jquery-1.11.1.min.js"></script>
+    <script src="./js/changeSize.js"></script>
+    <script>
+      new Vue({
+        el: "#app",
+        data: {
+          bg: "./assets/btn1.png",
+          laba: "./assets/laba2.png",
+          bgImg: "./assets/beijing.png",
+          gameIndex: true,
+          rulePage: false,
+          gameProcess: false,
+          gameResult: false,
+
+          top1: -400,
+          top2: -1200,
+          top3: -1600,
+          top4: -2000,
+          top5: -600,
+          top6: -900,
+          top7: -500,
+          top8: -800,
+          top9: -1000,
+          speed: 300,
+
+          time: 50,
+          score: 100,
+          isShow: [true, true, true, true, true, true, true, true, true],
+          stuff: [
+            "水溶性成分提取",
+            "遇热易破坏成分提取",
+            "遇热不易破坏成分提取",
+            "非挥发性成分提取",
+            "脂溶性成分提取",
+            "挥发性成分提取",
+            "铁制品提取",
+            "不锈钢制品提取",
+            "陶瓷品提取",
+          ],
+          img: [
+            "./assets/apple.png",
+            "./assets/apple.png",
+            "./assets/apple.png",
+            "./assets/apple.png",
+            "./assets/apple.png",
+            "./assets/apple.png",
+            "./assets/apple.png",
+            "./assets/apple.png",
+            "./assets/apple.png",
+          ],
+          appleBox: [false, false, false, false, false],
+          appleName: ["", "", "", "", ""],
+          appleNum: 0,
+          correctList: [],
+          inCorrectList: [],
+          audioPlayer: null,
+          endAudioPlayer: new Audio("./assets/audio/win.mp3"),
+          // 倒计时时间
+          readyTime: 10,
+        },
+        computed: {
+          evl() {
+            if (this.score == 100) {
+              return "你真是太棒了!";
+            } else if (this.score < 100 && this.score >= 60) {
+              return "很不错!";
+            } else if (this.score < 60) {
+              return "马马乎乎~";
+            }
+          },
+        },
+        methods: {
+          /**
+           * 页面初始化
+           */
+          init() {
+            this.endAudioPlayer = new Audio("./assets/audio/win.mp3");
+            this.audioPlayer.play();
+            this.gameIndex = false;
+            this.gameProcess = true;
+            this.gameResult = false;
+            this.bgImg = "./assets/beijing.png";
+            this.time = 50;
+            this.score = 100;
+            this.isShow = [
+              true,
+              true,
+              true,
+              true,
+              true,
+              true,
+              true,
+              true,
+              true,
+            ];
+            this.stuff = [
+              "水溶性成分提取",
+              "遇热易破坏成分提取",
+              "遇热不易破坏成分提取",
+              "非挥发性成分提取",
+              "脂溶性成分提取",
+              "挥发性成分提取",
+              "铁制品提取",
+              "不锈钢制品提取",
+              "陶瓷品提取",
+            ];
+            this.img = [
+              "./assets/apple.png",
+              "./assets/apple.png",
+              "./assets/apple.png",
+              "./assets/apple.png",
+              "./assets/apple.png",
+              "./assets/apple.png",
+              "./assets/apple.png",
+              "./assets/apple.png",
+              "./assets/apple.png",
+            ];
+            this.appleBox = [false, false, false, false, false];
+            this.appleName = ["", "", "", "", ""];
+            this.appleNum = 0;
+            this.correctList = [];
+            this.inCorrectList = [];
+            this.top1 = -400;
+            this.top2 = -200;
+            this.top3 = -500;
+            this.top4 = -700;
+            this.top5 = -1400;
+            this.top6 = -900;
+            this.top7 = -1200;
+            this.top8 = -800;
+            this.top9 = -1000;
+          },
+          reload() {
+            window.location.reload();
+          },
+          cgbg() {
+            this.bg = "./assets/btn2.png";
+          },
+          cgbg2() {
+            this.bg = "./assets/btn1.png";
+          },
+          playBg() {
+            this.laba = "./assets/laba1.png";
+            this.audioPlayer = new Audio("./assets/audio/bgmusic.mp3");
+            this.audioPlayer.play();
+          },
+          // 跳转到规则界面
+          goRulePage() {
+            this.gameIndex = false;
+            this.rulePage = true;
+          },
+          /**
+           * 开始游戏
+           * 李阳
+           */
+          startGame() {
+            this.gameIndex = false;
+            this.gameProcess = true;
+            this.playBg();
+            // 10s看规则的时间，之后自动落苹果
+            // 10s倒计时
+            let ten = setInterval(() => {
+              if (this.readyTime > 1) {
+                this.readyTime--;
+              } else if (this.readyTime == 1) {
+                this.readyTime = "go !";
+                clearInterval(ten);
+                setTimeout(() => {
+                  this.timeInterval();
+                }, 1000);
+              }
+            }, 1000);
+            this.bgImg = "./assets/beijing1.png";
+          },
+
+          // 点击正确的苹果
+          correct(index, content) {
+            event.preventDefault;
+            // 播放正确音效
+            setTimeout(() => {
+              let audio = new Audio("./assets/audio/right.mp3");
+              audio.play();
+            }, 0);
+            this.img[index] = "./assets/correctApple.png";
+            this.appleBox.splice(this.appleNum, 1, true);
+            this.appleName.splice(this.appleNum, 1, this.stuff[content]);
+            this.appleNum += 1;
+            this.correctList.push(content);
+            this.$nextTick(function () {
+              this.isShow[index] = false;
+            }, 0);
+          },
+          // 点击错误的苹果
+          incorrect(index, content) {
+            event.preventDefault;
+            // 播放失败音效
+            setTimeout(() => {
+              let audio = new Audio("./assets/audio/wrong.mp3");
+              audio.play();
+            }, 0);
+            this.img[index] = "./assets/incorrectApple.png";
+            this.appleBox.splice(this.appleNum, 1, true);
+            this.appleName.splice(this.appleNum, 1, this.stuff[content]);
+            this.appleNum += 1;
+            this.score -= 20;
+            this.inCorrectList.push(content);
+            this.$nextTick(function () {
+              this.isShow[index] = false;
+            }, 0);
+          },
+          end() {
+            setTimeout(() => {}, 0);
+            this.score = this.correctList.length * 20;
+            // window.location.href =
+            //         "./end.html?score=" +
+            //         this.score +
+            //         "?correctList=" +
+            //         this.correctList +
+            //         "?inCorrectList=" +
+            //         this.inCorrectList;
+
+            this.gameResult = true;
+            this.gameProcess = false;
+            // 播放完成音效
+            this.endAudioPlayer.play();
+            // 临时 3s后停止结束音效
+            setTimeout(() => {
+              this.endAudioPlayer = null;
+            }, 3000);
+            // 暂停背景音乐
+            this.audioPlayer.pause();
+          },
+
+          /**
+           * 倒计时并下落
+           * 荆凯
+           */
+          timeInterval() {
+            let apples = document.getElementsByClassName("drop_apple");
+            this.readyTime = "";
+            // let top1 = -400;
+            // let top2 = -200;
+            // let top3 = -500;
+            // let top4 = -700;
+            // let top5 = -600;
+            // let top6 = -900;
+            // let top7 = -500;
+            // let top8 = -800;
+            // let top9 = -1000;
+            // 计时
+            let clock = setInterval(() => {
+              this.time -= 1;
+              if (this.time == 0) {
+                clearInterval(clock);
+                this.end();
+              }
+            }, 1000);
+            let a1 = setInterval(() => {
+              this.top1 += 20;
+              apples[0].style.top = this.top1 + "px";
+              // 下落临界值
+              if (this.top1 > document.body.clientHeight) {
+                // this.isShow.splice(0, 1, false);
+                // clearInterval(a1);
+                this.top1 = -40;
+              }
+            }, this.speed);
+            let a2 = setInterval(() => {
+              this.top2 += 20;
+              apples[1].style.top = this.top2 + "px";
+              if (this.top2 > document.body.clientHeight) {
+                // this.isShow.splice(1, 1, false);
+                // clearInterval(a2);
+                this.top2 = -40;
+              }
+            }, this.speed);
+            let a3 = setInterval(() => {
+              this.top3 += 20;
+              apples[2].style.top = this.top3 + "px";
+              if (this.top3 > document.body.clientHeight) {
+                // this.isShow.splice(2, 1, false);
+                // clearInterval(a3);
+                this.top3 = -40;
+              }
+            }, this.speed);
+            let a4 = setInterval(() => {
+              this.top4 += 20;
+              apples[3].style.top = this.top4 + "px";
+              if (this.top4 > document.body.clientHeight) {
+                // this.isShow.splice(3, 1, false);
+                // clearInterval(a4);
+                this.top4 = -40;
+              }
+            }, this.speed);
+            let a5 = setInterval(() => {
+              this.top5 += 20;
+              apples[4].style.top = this.top5 + "px";
+              if (this.top5 > document.body.clientHeight) {
+                // this.isShow.splice(4, 1, false);
+                // clearInterval(a5);
+                this.top5 = -40;
+              }
+            }, this.speed);
+            let a6 = setInterval(() => {
+              this.top6 += 20;
+              apples[5].style.top = this.top6 + "px";
+              if (this.top6 > document.body.clientHeight) {
+                // this.isShow.splice(5, 1, false);
+                // clearInterval(a6);
+                this.top6 = -40;
+              }
+            }, this.speed);
+            let a7 = setInterval(() => {
+              this.top7 += 20;
+              apples[6].style.top = this.top7 + "px";
+              if (this.top7 > document.body.clientHeight) {
+                // this.isShow.splice(6, 1, false);
+                // clearInterval(a7);
+                this.top7 = -40;
+              }
+            }, this.speed);
+            let a8 = setInterval(() => {
+              this.top8 += 20;
+              apples[7].style.top = this.top8 + "px";
+              if (this.top8 > document.body.clientHeight) {
+                // this.isShow.splice(7, 1, false);
+                // clearInterval(a8);
+                this.top8 = -40;
+              }
+            }, this.speed);
+            let a9 = setInterval(() => {
+              this.top9 += 20;
+              apples[8].style.top = this.top9 + "px";
+              if (this.top9 > document.body.clientHeight) {
+                // this.isShow.splice(8, 1, false);
+                // clearInterval(a9);
+                this.top9 = -40;
+              }
+            }, this.speed);
+          },
+        },
+        watch: {
+          appleNum: function () {
+            if (this.appleNum == 5) {
+              setTimeout(() => {
+                this.end();
+              }, 500);
+            }
+          },
+        },
+        mounted() {},
+      });
+    </script>
+  </body>
+</html>
